@@ -119,5 +119,5 @@ class PrecogXCallbackHandler(BaseCallbackHandler):
              self.emitter.send_interaction(self._current_interaction)
 
              self._current_interaction = None # Reset
-             self._tool_calls_in_progress = {} # Clear
+             self._tool_calls_in_progress = {} # Clear 
              self._chain_of_thought = [] # Clear chain of thought 
