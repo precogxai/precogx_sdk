@@ -13,3 +13,4 @@ precogx_sdk.egg-info/requires.txt
 precogx_sdk.egg-info/top_level.txt
 precogx_sdk/precogx_langchain/__init__.py
 precogx_sdk/precogx_langchain/callback_handler.py
+tests/test_sdk_core.py

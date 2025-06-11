@@ -1,5 +1,5 @@
 from typing import Dict, List, Tuple, Optional, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from app.core.telemetry.models import Agent, Interaction
 from app.core.detection.models import Detection
@@ -57,7 +57,7 @@ class TrustScoreCalculator:
         confidence = min(1.0, len(interactions) / 10)
         if interactions:
             most_recent = max(i.timestamp for i in interactions)
-            days_since = (datetime.utcnow() - most_recent).days
+            days_since = (datetime.now(timezone.utc) - most_recent).days
             confidence *= math.exp(-days_since / 30)
 
         return {
@@ -82,14 +82,14 @@ class TrustScoreCalculator:
             self.agent.__class__.tenant_id == self.tenant_id
         )
         if time_window:
-            since = datetime.utcnow() - timedelta(days=time_window)
+            since = datetime.now(timezone.utc) - timedelta(days=time_window)
             query = query.filter(self.agent.__class__.interactions.property.mapper.class_.timestamp >= since)
         return query.all()
 
     def _calculate_risk_score(self, interactions: List[Any]) -> float:
         # Lower risk = higher score, with time decay
         scores = []
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         for i in interactions:
             days_ago = (now - i.timestamp).days
             decay = 0.5 ** (days_ago / self.time_decay_half_life)
@@ -110,7 +110,7 @@ class TrustScoreCalculator:
     def _calculate_behavior_score(self, interactions: List[Any]) -> float:
         # Behavior: penalize for flagged behaviors, with time decay
         scores = []
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         for i in interactions:
             days_ago = (now - i.timestamp).days
             decay = 0.5 ** (days_ago / self.time_decay_half_life)
@@ -122,7 +122,7 @@ class TrustScoreCalculator:
     def _calculate_detection_score(self, interactions: List[Any]) -> float:
         # Detection: penalize for security detections, with time decay
         scores = []
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         for i in interactions:
             days_ago = (now - i.timestamp).days
             decay = 0.5 ** (days_ago / self.time_decay_half_life)

@@ -2,7 +2,7 @@ from typing import Dict, Any, Optional
 import os
 import json
 import requests
-from datetime import datetime
+from datetime import datetime, timezone
 from app.core.telemetry.models import Agent, Interaction
 from app.core.trust.calculator import TrustScoreCalculator
 
@@ -183,7 +183,7 @@ class SlackNotifier:
                     },
                     {
                         "type": "mrkdwn",
-                        "text": f"*Time:*\n{datetime.utcnow().isoformat()}"
+                        "text": f"*Time:*\n{datetime.now(timezone.utc).isoformat()}"
                     }
                 ]
             }

@@ -1,5 +1,5 @@
 from typing import Dict, Any, Optional, List
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from app.core.telemetry.models import Agent, Interaction
 from app.core.trust.calculator import TrustScoreCalculator
@@ -107,7 +107,7 @@ class ValidationLayer:
         if interaction:
             interaction.approval_status = "approved" if approved else "rejected"
             interaction.approved_by = approver
-            interaction.approval_timestamp = datetime.utcnow()
+            interaction.approval_timestamp = datetime.now(timezone.utc)
             self.db.commit()
 
         return {
@@ -115,7 +115,7 @@ class ValidationLayer:
             "agent_id": agent_id,
             "interaction_id": interaction_id,
             "approver": approver,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
 
     def get_pending_approvals(self) -> List[Dict[str, Any]]:

@@ -66,7 +66,7 @@ class PrecogXCallbackHandler(BaseCallbackHandler):
                 tool_name=tool_name,
                 tool_input=input_str,
                 metadata={
-                    "timestamp_start": datetime.datetime.utcnow().isoformat() + "Z"
+                    "timestamp_start": datetime.datetime.now(datetime.timezone.utc).isoformat() + "Z"
                 }
             )
             self._current_interaction.tool_calls.append(tool_call) # Add to the interaction's list
@@ -80,7 +80,7 @@ class PrecogXCallbackHandler(BaseCallbackHandler):
         for tool_call_id, tool_call in reversed(list(self._tool_calls_in_progress.items())):
             if tool_call.tool_name == name and tool_call.tool_output is None:
                 tool_call.tool_output = output
-                tool_call.metadata["timestamp_end"] = datetime.datetime.utcnow().isoformat() + "Z"
+                tool_call.metadata["timestamp_end"] = datetime.datetime.now(datetime.timezone.utc).isoformat() + "Z"
                 # We can optionally remove it from _tool_calls_in_progress if we are sure it's finished
                 # del self._tool_calls_in_progress[tool_call_id]
                 break # Assume the most recent matching tool call ended

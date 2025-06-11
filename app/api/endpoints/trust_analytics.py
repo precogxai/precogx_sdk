@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from app.core.database import get_db, get_current_tenant
 from app.core.telemetry.models import Agent, Interaction
 from app.core.trust.calculator import TrustScoreCalculator
@@ -23,7 +23,7 @@ def trust_score_history(
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
     # Get all interactions in the window
-    since = datetime.utcnow() - timedelta(days=days)
+    since = datetime.now(timezone.utc) - timedelta(days=days)
     interactions = db.query(Interaction).filter(
         Interaction.agent_id == agent.id,
         Interaction.tenant_id == tenant.id,
@@ -62,7 +62,7 @@ def trust_score_analytics(
     agent = db.query(Agent).filter(Agent.agent_id == agent_id, Agent.tenant_id == tenant.id).first()
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
-    since = datetime.utcnow() - timedelta(days=days)
+    since = datetime.now(timezone.utc) - timedelta(days=days)
     interactions = db.query(Interaction).filter(
         Interaction.agent_id == agent.id,
         Interaction.tenant_id == tenant.id,
@@ -101,7 +101,7 @@ def tenant_trust_score_summary(
         return {"tenant_id": tenant_id, "summary": {}}
     all_scores = []
     for agent in agents:
-        since = datetime.utcnow() - timedelta(days=days)
+        since = datetime.now(timezone.utc) - timedelta(days=days)
         interactions = db.query(Interaction).filter(
             Interaction.agent_id == agent.id,
             Interaction.tenant_id == tenant_id,
